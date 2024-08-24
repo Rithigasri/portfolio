@@ -4,6 +4,7 @@ pipeline {
     stages {
         stage('Pull from GitHub') {
             steps {
+                // Pull the latest code from the GitHub repository
                 git branch: 'main', url: 'https://github.com/Rithigasri/portfolio.git'
             }
         }
@@ -14,7 +15,7 @@ pipeline {
                     // Perform SonarQube code analysis for static HTML
                     withSonarQubeEnv('My SonarQube Server') {
                         bat """
-                        cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\poc
+                        cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\portfolio
                         sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea
                         """
                     }
@@ -25,6 +26,7 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 script {
+                    // Define the target path for IIS deployment
                     def sitePath = 'C:\\inetpub\\wwwroot\\website'
                     
                     // Ensure the target directory exists
@@ -37,7 +39,7 @@ pipeline {
                     // Copy new files to IIS directory
                     bat "xcopy /s /e /y . ${sitePath}\\"
                     
-                    // Optional: Restart IIS (only if needed)
+                    // Optional: Restart IIS if necessary
                     bat 'iisreset'
                 }
             }
