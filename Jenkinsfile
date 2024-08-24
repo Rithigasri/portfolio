@@ -16,7 +16,7 @@ pipeline {
                     withSonarQubeEnv('My SonarQube Server') {
                         bat """
                         cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\portfolio
-                        sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea
+                        C:\\Users\\Rithigasri\\Downloads\\sonar-scanner-cli-6.1.0.4477-windows-x64\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea
                         """
                     }
                 }
