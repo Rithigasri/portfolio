@@ -8,15 +8,21 @@ pipeline {
             }
         }
 
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             // Perform SonarQube code analysis for static HTML
+        //             withSonarQubeEnv('My SonarQube Server') {
+        //                 bat 'sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea'
+        //             }
+        //         }
+        //     }
         stage('SonarQube Analysis') {
-            steps {
-                script {
-                    // Perform SonarQube code analysis for static HTML
-                    withSonarQubeEnv('My SonarQube Server') {
-                        bat 'sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea'
-                    }
+                def scannerHome = tool 'My SonarQube Server';
+                withSonarQubeEnv() {
+                  sh "${scannerHome}/bin/sonar-scanner"
                 }
-            }
+  }
         }
 
         stage('Deploy to IIS') {
