@@ -13,11 +13,13 @@ pipeline {
                 script {
                     // Perform SonarQube code analysis for static HTML
                     withSonarQubeEnv('My SonarQube Server') {
-                        bat 'sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea'
+                        bat """
+                        cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\poc
+                        sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea
+                        """
                     }
                 }
             }
-       
         }
 
         stage('Deploy to IIS') {
