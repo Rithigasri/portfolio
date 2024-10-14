@@ -33,7 +33,7 @@ pipeline {
     steps {
         script {
             // Change ownership and permissions
-            sh '''
+             sh '''
                 sudo chown -R www-data:www-data /var/www/html
                 sudo chmod -R 755 /var/www/html
                 sudo cp -r * /var/www/html/
