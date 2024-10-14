@@ -29,20 +29,20 @@ pipeline {
 }
 
 
-        stage('Deploy to Apache') {
-            steps {
-                script {
-                    // Deploy the files to the Apache server
-                    echo "Deploying to Apache server at ${EC2_HOST}..."
-                    sh """
-                    sudo chown -R www-data:www-data ${DEPLOY_DIR}
-                    sudo chmod -R 755 ${DEPLOY_DIR}
-                    sudo cp -r * ${DEPLOY_DIR}/
-                    echo "Deployment to Apache completed successfully."
-                    """
-                }
-            }
+        sstage('Deploy to Apache') {
+    steps {
+        script {
+            // Change ownership and permissions
+            sh '''
+                sudo chown -R www-data:www-data /var/www/html
+                sudo chmod -R 755 /var/www/html
+                sudo cp -r * /var/www/html/
+                echo "Deployment to Apache completed successfully."
+            '''
         }
+    }
+}
+
     }
 
     post {
