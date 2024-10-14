@@ -7,6 +7,7 @@ pipeline {
         DEPLOY_DIR = '/var/www/html' // Apache default document root
         EC2_USER = 'ubuntu' // Replace with your EC2 user if different
         EC2_HOST = '13.59.93.160' // Replace with your EC2 instance public IP
+        SUDO_PASSWORD = 'your_sudo_password' // Replace with your sudo password (not recommended for security reasons)
     }
 
     stages {
@@ -25,10 +26,10 @@ pipeline {
                 script {
                     // Grant sudo privileges to Jenkins user
                     echo "Granting sudo privileges to Jenkins user..."
-                    sh '''
-                    echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins
+                    sh """
+                    echo "${SUDO_PASSWORD}" | sudo -S tee /etc/sudoers.d/jenkins <<< "jenkins ALL=(ALL) NOPASSWD: ALL"
                     sudo chmod 440 /etc/sudoers.d/jenkins
-                    '''
+                    """
                     echo "Sudo privileges granted to Jenkins user without password."
                 }
             }
