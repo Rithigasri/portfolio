@@ -29,7 +29,7 @@ pipeline {
 }
 
 
-        sstage('Deploy to Apache') {
+        stage('Deploy to Apache') {
     steps {
         script {
             // Change ownership and permissions
