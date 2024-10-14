@@ -1,46 +1,35 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Pull from GitHub') {
-            steps {
-                // Pull the latest code from the GitHub repository
-                git branch: 'main', url: 'https://github.com/Rithigasri/portfolio.git'
-            }
-        }
+    environment {
+        // Define your variables here
+        GITHUB_REPO = 'https://github.com/Rithigasri/portfolio.git' // Replace with your GitHub repository URL
+        DEPLOY_DIR = '/var/www/html' // Apache default document root
+        SSH_CREDENTIALS_ID = '9e5eefe4-055a-4706-bcf4-1e8175379236' // Jenkins credentials ID for SSH
+        EC2_USER = 'ubuntu' // Replace with your EC2 user if different
+        EC2_HOST = '13.59.93.160' // Replace with your EC2 instance public IP
+    }
 
-        stage('SonarQube Analysis') {
+    stages {
+        stage('Clone Repository') {
             steps {
                 script {
-                    // Perform SonarQube code analysis for static HTML
-                    withSonarQubeEnv('My SonarQube Server') {
-                        bat """
-                        cd C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\portfolio
-                        C:\\Users\\Rithigasri\\Downloads\\sonar-scanner-cli-6.1.0.4477-windows-x64\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner -Dsonar.projectKey=poc -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_1c44b66f56966a23a05b74dfb2adb2960b974dea
-                        """
-                    }
+                    // Clone the GitHub repository
+                    git branch: 'main', url: "${GITHUB_REPO}"
                 }
             }
         }
 
-        stage('Deploy to IIS') {
+        stage('Deploy to Apache') {
             steps {
                 script {
-                    // Define the target path for IIS deployment
-                    def sitePath = 'C:\\inetpub\\wwwroot\\website'
-                    
-                    // Ensure the target directory exists
-                    bat "if not exist ${sitePath} mkdir ${sitePath}"
-                    
-                    // Delete existing files in the IIS directory
-                    bat "del /q ${sitePath}\\*.*"
-                    bat "for /d %%p in (${sitePath}\\*) do rmdir /s /q %%p"
-                    
-                    // Copy new files to IIS directory
-                    bat "xcopy /s /e /y . ${sitePath}\\"
-                    
-                    // Optional: Restart IIS if necessary
-                    bat 'iisreset'
+                    // Copy files to the Apache server using SSH
+                    sshagent(credentials: [SSH_CREDENTIALS_ID]) {
+                        sh """
+                            # Sync files to the Apache document root
+                            scp -r * ${EC2_USER}@${EC2_HOST}:${DEPLOY_DIR}
+                        """
+                    }
                 }
             }
         }
@@ -48,10 +37,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Deployment was successful!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Deployment failed.'
         }
     }
 }
