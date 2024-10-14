@@ -5,6 +5,7 @@ pipeline {
         // Define your variables here
         GITHUB_REPO = 'https://github.com/Rithigasri/portfolio.git' // Replace with your GitHub repository URL
         DEPLOY_DIR = '/var/www/html' // Apache default document root
+        SSH_CREDENTIALS_ID = '9e5eefe4-055a-4706-bcf4-1e8175379236' // Jenkins credentials ID for SSH
         EC2_USER = 'ubuntu' // Replace with your EC2 user if different
         EC2_HOST = '13.59.93.160' // Replace with your EC2 instance public IP
     }
@@ -20,29 +21,20 @@ pipeline {
             }
         }
 
-        stage('Grant Sudo Privileges to Jenkins') {
-    steps {
-        script {
-            echo "Sudo privileges should now be granted without a password."
-        }
-    }
-}
-
-
         stage('Deploy to Apache') {
-    steps {
-        script {
-            // Change ownership and permissions
-             sh '''
-                sudo chown -R www-data:www-data /var/www/html
-                sudo chmod -R 755 /var/www/html
-                sudo cp -r * /var/www/html/
-                echo "Deployment to Apache completed successfully."
-            '''
+            steps {
+                script {
+                    // Sync files to the Apache server using SCP
+                    echo "Deploying to Apache server at ${EC2_HOST}..."
+                    sshagent(credentials: [SSH_CREDENTIALS_ID]) {
+                        sh """
+                            # Use SCP to copy files to the Apache document root
+                            scp -r -o StrictHostKeyChecking=no * ${EC2_USER}@${EC2_HOST}:${DEPLOY_DIR}
+                        """
+                    }
+                }
+            }
         }
-    }
-}
-
     }
 
     post {
