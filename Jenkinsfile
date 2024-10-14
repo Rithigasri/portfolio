@@ -7,7 +7,6 @@ pipeline {
         DEPLOY_DIR = '/var/www/html' // Apache default document root
         EC2_USER = 'ubuntu' // Replace with your EC2 user if different
         EC2_HOST = '13.59.93.160' // Replace with your EC2 instance public IP
-        SUDO_PASSWORD = 'your_sudo_password' // Replace with your sudo password (not recommended for security reasons)
     }
 
     stages {
@@ -27,7 +26,7 @@ pipeline {
                     // Grant sudo privileges to Jenkins user
                     echo "Granting sudo privileges to Jenkins user..."
                     sh """
-                    echo "${SUDO_PASSWORD}" | sudo -S tee /etc/sudoers.d/jenkins <<< "jenkins ALL=(ALL) NOPASSWD: ALL"
+                    echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/jenkins > /dev/null
                     sudo chmod 440 /etc/sudoers.d/jenkins
                     """
                     echo "Sudo privileges granted to Jenkins user without password."
@@ -40,12 +39,12 @@ pipeline {
                 script {
                     // Deploy the files to the Apache server
                     echo "Deploying to Apache server at ${EC2_HOST}..."
-                    sh '''
+                    sh """
                     sudo chown -R www-data:www-data ${DEPLOY_DIR}
                     sudo chmod -R 755 ${DEPLOY_DIR}
                     sudo cp -r * ${DEPLOY_DIR}/
                     echo "Deployment to Apache completed successfully."
-                    '''
+                    """
                 }
             }
         }
