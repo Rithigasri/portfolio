@@ -15,6 +15,7 @@ pipeline {
             steps {
                 script {
                     // Clone the GitHub repository
+                    echo "Cloning repository from ${GITHUB_REPO}..."
                     git branch: 'main', url: "${GITHUB_REPO}"
                 }
             }
@@ -23,11 +24,12 @@ pipeline {
         stage('Deploy to Apache') {
             steps {
                 script {
-                    // Copy files to the Apache server using SSH
+                    // Sync files to the Apache server using SSH
+                    echo "Deploying to Apache server at ${EC2_HOST}..."
                     sshagent(credentials: [SSH_CREDENTIALS_ID]) {
                         sh """
-                            # Sync files to the Apache document root
-                            scp -r * ${EC2_USER}@${EC2_HOST}:${DEPLOY_DIR}
+                            # Copy files to the Apache document root
+                            rsync -avz --delete --exclude='.git' ./ ${EC2_USER}@${EC2_HOST}:${DEPLOY_DIR}
                         """
                     }
                 }
